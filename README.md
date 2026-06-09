@@ -37,7 +37,7 @@ export async function matchListTft () {
 }
 
 ```
-[More examples](https://github.com/Sansossio/twisted/tree/master/example)
+[More examples](https://github.com/justadev-afk/twisted/tree/master/example)
 
 # Automatic rate limits reattempts
 ```js
