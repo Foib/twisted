@@ -163,6 +163,27 @@ describe('Base api', () => {
       }
     })
 
+    it('should keep query params on retry', async () => {
+      const data = { data: 'good' }
+      const queryParams = { queue: 420, page: 2 }
+      const api = new BaseApi(key)
+      const calls: any[] = []
+      api.internalRequest = jest.fn()
+        .mockImplementation((options: any) => {
+          calls.push(options)
+          if (calls.length === 1) {
+            throw new RateLimitError()
+          }
+          return data
+        })
+      const response = await api.request('KR', {}, undefined, false, queryParams)
+      expect(response.response).toEqual(data.data)
+      // Both the initial call and the retry must carry the query params
+      expect(calls).toHaveLength(2)
+      expect(calls[0].params).toEqual(queryParams)
+      expect(calls[1].params).toEqual(queryParams)
+    })
+
     it('should throw rate limit when option ins disable', async () => {
       const api = new BaseApi({
         key,

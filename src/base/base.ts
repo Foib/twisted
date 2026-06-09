@@ -144,7 +144,7 @@ export class BaseApi<Region extends string> {
     return RequestBase.request<T>(options)
   }
 
-  private async retryRateLimit<T> (region: Region | RegionGroups, endpoint: IEndpoint, params?: IParams, e?: any): Promise<ApiResponseDTO<T>> {
+  private async retryRateLimit<T> (region: Region | RegionGroups, endpoint: IEndpoint, params?: IParams, e?: any, queryParams?: any): Promise<ApiResponseDTO<T>> {
     const baseError = this.getError(e)
     const isRateLimitError = this.isRateLimitError(e) || this.isServiceUnavailableError(e)
     if (!this.rateLimitRetry || !isRateLimitError || this.rateLimitRetryAttempts < 1) {
@@ -153,7 +153,7 @@ export class BaseApi<Region extends string> {
     const forceError = true
     for (let i = 0; i <= this.rateLimitRetryAttempts; i++) {
       try {
-        const response = await this.request<T>(region, endpoint, params, forceError)
+        const response = await this.request<T>(region, endpoint, params, forceError, queryParams)
         return response
       } catch (error) {
         const parseError = this.getError(error)
@@ -230,7 +230,7 @@ export class BaseApi<Region extends string> {
       if (forceError) {
         throw e
       }
-      return await this.retryRateLimit<T>(region, endpoint, params, e)
+      return await this.retryRateLimit<T>(region, endpoint, params, e, queryParams)
     } finally {
       if (this.debug.logTime) {
         Logger.end(endpoint, url)

@@ -1,6 +1,6 @@
 {
   "name": "twisted",
-  "version": "1.75.0",
+  "version": "1.75.1",
   "description": "Fetching riot games api data",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/justadev-afk/twisted"
+    "url": "git+https://github.com/justadev-afk/twisted.git"
   },
   "author": {
     "name": "justadev-afk",
