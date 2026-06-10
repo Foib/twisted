@@ -20,6 +20,26 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - run: npm publish --provenance --access public
+      - name: Resolve package name and version
+        id: pkg
+        run: |
+          echo "name=$(node -p "require('./package.json').name")" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      # Pushing to master without bumping the version (e.g. dependabot, docs)
+      # must not fail the deploy: only publish when this version is new.
+      - name: Check whether the version is already on npm
+        id: published
+        run: |
+          if npm view "${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::${{ steps.pkg.outputs.name }}@${{ steps.pkg.outputs.version }} is already published — skipping publish."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to npm
+        if: steps.published.outputs.exists == 'false'
+        run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
